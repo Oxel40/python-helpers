@@ -19,19 +19,18 @@ class Router:
 
     def serve(self, address, authkey=b'super secret'):
         with Listener(address, authkey=authkey) as listener:
-            listener._listener._socket.settimeout(3)
+            # listener._listener._socket.settimeout(3)
             while True:
                 try:
                     conn = listener.accept()
-                except socket.timeout as t:
-                    print('to')
-                    continue
-                print('connection accepted from', listener.last_accepted)
-                try:
+                    print('connection accepted from', listener.last_accepted)
                     func_name, args, kwargs = conn.recv()
                     print(func_name, args, kwargs)
                     conn.send(self.call(func_name, *args, **kwargs))
                     conn.close()
+                except socket.timeout as _:
+                    print('timeout reached...')
+                    continue
                 except ConnectionResetError as c:
                     print(c)
                     continue
