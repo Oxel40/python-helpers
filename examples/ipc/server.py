@@ -1,4 +1,4 @@
-import helpers.ipc
+import helpers.ipc as ipc
 import numpy as np
 
 router = ipc.Router()
