@@ -27,10 +27,14 @@ class Router:
                     print('to')
                     continue
                 print('connection accepted from', listener.last_accepted)
-                func_name, args, kwargs = conn.recv()
-                print(func_name, args, kwargs)
-                conn.send(self.call(func_name, *args, **kwargs))
-                conn.close()
+                try:
+                    func_name, args, kwargs = conn.recv()
+                    print(func_name, args, kwargs)
+                    conn.send(self.call(func_name, *args, **kwargs))
+                    conn.close()
+                except ConnectionResetError as c:
+                    print(c)
+                    continue
 
 
 def remote_call(address, func_name, *args, **kwargs):
