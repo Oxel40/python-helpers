@@ -5,7 +5,7 @@ import numpy as np
 address = ('localhost', 6000)
 
 # time.sleep(3)
-for _ in range(100000000):
+for _ in range(10):
     ans = ipc.remote_call(address, "test", "ett", "2", 3)
     print(ans)
 
