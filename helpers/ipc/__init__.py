@@ -1,1 +1,1 @@
-from .ipc import Router, remote_call
+from .ipc import Router, Remote

@@ -1,9 +1,13 @@
 from multiprocessing.connection import Listener, Client
+from multiprocessing.context import AuthenticationError
 import socket
 
 
 class Router:
-    def __init__(self) -> None:
+    def __init__(self, address, authkey=b'super secret'):
+        self.address = address
+        self.authkey = authkey
+
         self.func_map = dict()
 
     def expose(self, func):
@@ -17,8 +21,8 @@ class Router:
     def call(self, func_name, *args, **kwargs):
         return self.func_map[func_name](*args, **kwargs)
 
-    def serve(self, address, authkey=b'super secret'):
-        with Listener(address, authkey=authkey) as listener:
+    def serve(self):
+        with Listener(self.address, authkey=self.authkey) as listener:
             # Set timeout to allow keyboard interupts
             listener._listener._socket.settimeout(3)
             while True:
@@ -29,16 +33,24 @@ class Router:
                     print(func_name, args, kwargs)
                     conn.send(self.call(func_name, *args, **kwargs))
                     conn.close()
-                except socket.timeout as _:
+                except socket.timeout:
                     print('timeout reached...')
+                except AuthenticationError as e:
+                    print('(!) Authentication failed')
+                    print(e)
                 except (ConnectionResetError, ConnectionAbortedError, EOFError) as e:
-                    print('something bad happened with the connection')
+                    print('(!) Something bad happened with the connection')
                     print(e)
 
 
-def remote_call(address, func_name, *args, **kwargs):
-    conn = Client(address, authkey=b'super secret')
-    conn.send((func_name, args, kwargs))
-    res = conn.recv()
-    conn.close()
-    return res
+class Remote:
+    def __init__(self, address, authkey=b'super secret'):
+        self.address = address
+        self.authkey = authkey
+
+    def remote_call(self, func_name, *args, **kwargs):
+        conn = Client(self.address, authkey=self.authkey)
+        conn.send((func_name, args, kwargs))
+        res = conn.recv()
+        conn.close()
+        return res
