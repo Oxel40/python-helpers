@@ -13,7 +13,7 @@ into your terminal of choice.
 ## Documentation
 Don't expect much in the way of documentation, for now. I might document some of the classes and functions
 sometime in the future when (and if) i feel like it.
-But feel free to view the code, which is quite short and self documenting (in my opinion). 
+But feel free to view the source code, which is quite short. 
 
 ## Examples
 Some examples has been included in the `examples` folder to show how one could use some of the modules.
