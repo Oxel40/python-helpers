@@ -19,7 +19,11 @@ class Router:
         return func
 
     def call(self, func_name, *args, **kwargs):
-        return self.func_map[func_name](*args, **kwargs)
+        try:
+            return self.func_map[func_name](*args, **kwargs)
+        except KeyError as e:
+            print(':: KeyError', e)
+            return e
 
     def serve(self):
         with Listener(self.address, authkey=self.authkey) as listener:
@@ -48,9 +52,11 @@ class Remote:
         self.address = address
         self.authkey = authkey
 
-    def remote_call(self, func_name, *args, **kwargs):
+    def call(self, func_name, *args, **kwargs):
         conn = Client(self.address, authkey=self.authkey)
         conn.send((func_name, args, kwargs))
         res = conn.recv()
         conn.close()
+        if type(res) == KeyError:
+            raise res
         return res
